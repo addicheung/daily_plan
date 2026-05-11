@@ -1,0 +1,162 @@
+# DOCS_INDEX.md
+
+`docs/docs_v1` 的总导航页。
+本索引同时服务两类读者：
+
+- 人类协作者：快速知道“先看什么”
+- AI / 智能体：快速建立完整、低冲突、可执行的项目上下文
+
+文档体系采用双层结构：
+
+- 顶层按使用场景给入口
+- 底层按开发轨迹归档为 `Initial -> Integration -> Iteration`
+
+---
+
+## 1. 推荐入口
+
+### 1.1 第一次进入项目
+
+先看：
+
+- [`START_HERE.md`](./START_HERE.md)
+
+然后按顺序继续：
+
+1. [`PROJECT_CONTEXT.md`](./PROJECT_CONTEXT.md)
+2. [`integration/README.md`](./integration/README.md)
+3. [`iterations/iteration-2/README.md`](./iterations/iteration-2/README.md)
+
+### 1.2 需要让 AI 快速理解整个项目
+
+固定顺序：
+
+1. [`PROJECT_CONTEXT.md`](./PROJECT_CONTEXT.md)
+2. [`DOCS_INDEX.md`](./DOCS_INDEX.md)
+3. [`iterations/iteration-2/README.md`](./iterations/iteration-2/README.md)
+4. [`integration/README.md`](./integration/README.md)
+5. [`initial/README.md`](./initial/README.md)
+
+### 1.3 理解当前系统事实
+
+先看：
+
+- [`integration/README.md`](./integration/README.md)
+
+再按问题深入：
+
+- [`integration/UI_BACKEND_ALIGNMENT_DELIVERY.md`](./integration/UI_BACKEND_ALIGNMENT_DELIVERY.md)
+- [`integration/OPENAPI_DRAFT_FINAL.yaml`](./integration/OPENAPI_DRAFT_FINAL.yaml)
+- [`../ui/2_ARCHITECTURE/API_INTEGRATION.md`](../ui/2_ARCHITECTURE/API_INTEGRATION.md)
+
+### 1.4 继续当前开发
+
+先看：
+
+- [`iterations/iteration-2/README.md`](./iterations/iteration-2/README.md)
+
+推荐顺序：
+
+1. [`iterations/iteration-2/ITERATION_2_SPEC.md`](./iterations/iteration-2/ITERATION_2_SPEC.md)
+2. [`iterations/iteration-2/ITERATION_2_DESIGN.md`](./iterations/iteration-2/ITERATION_2_DESIGN.md)
+3. [`iterations/iteration-2/ITERATION_2_TASK_BREAKDOWN.md`](./iterations/iteration-2/ITERATION_2_TASK_BREAKDOWN.md)
+
+补充入口：
+
+- [`iterations/iteration-2/FULL_UNIVERSE_REAL_DATA_PLAN.md`](./iterations/iteration-2/FULL_UNIVERSE_REAL_DATA_PLAN.md)
+
+说明：
+
+- `iteration-2` 当前同时覆盖 `sample real-data` 与 `full-universe real-data`
+- `FULL_UNIVERSE_REAL_DATA_PLAN.md` 是 subordinate execution note / implementation note
+- 它不替代 `ITERATION_2_SPEC.md`、`ITERATION_2_DESIGN.md`、`ITERATION_2_TASK_BREAKDOWN.md`
+
+### 1.5 追历史设计
+
+先看：
+
+- [`initial/README.md`](./initial/README.md)
+
+如果问题是 UI 原始设计，再继续看：
+
+- [`../ui/README.md`](../ui/README.md)
+
+---
+
+## 2. 归档结构
+
+### 2.1 Initial
+
+用于解释“项目最初是怎么被设计出来的”：
+
+- [`initial/README.md`](./initial/README.md)
+- [`initial/SPEC_FINAL.md`](./initial/SPEC_FINAL.md)
+- [`initial/SYSTEM_DESIGN_FINAL.md`](./initial/SYSTEM_DESIGN_FINAL.md)
+- [`initial/FINAL_EXECUTION_PLAN.md`](./initial/FINAL_EXECUTION_PLAN.md)
+- [`initial/TECH_STACK_FINAL.md`](./initial/TECH_STACK_FINAL.md)
+- [`initial/TIME_CUTOFFS_FINAL.md`](./initial/TIME_CUTOFFS_FINAL.md)
+- [`initial/DB_SCHEMA.md`](./initial/DB_SCHEMA.md)
+- [`initial/BACKTEST_CONTRACT.md`](./initial/BACKTEST_CONTRACT.md)
+- [`initial/BUSINESS_AND_USER_FLOWS.md`](./initial/BUSINESS_AND_USER_FLOWS.md)
+
+### 2.2 Integration
+
+用于解释“项目现在怎么接起来、怎么运行、怎么验收”：
+
+- [`integration/README.md`](./integration/README.md)
+- [`integration/UI_BACKEND_ALIGNMENT_DELIVERY.md`](./integration/UI_BACKEND_ALIGNMENT_DELIVERY.md)
+- [`integration/OPENAPI_DRAFT_FINAL.yaml`](./integration/OPENAPI_DRAFT_FINAL.yaml)
+- [`integration/ACCEPTANCE_TEST_FINAL.md`](./integration/ACCEPTANCE_TEST_FINAL.md)
+- [`integration/ACCEPTANCE_RUNBOOK.md`](./integration/ACCEPTANCE_RUNBOOK.md)
+- [`integration/LOCAL_RUNBOOK.md`](./integration/LOCAL_RUNBOOK.md)
+- [`integration/PYTHON_RUNBOOK.md`](./integration/PYTHON_RUNBOOK.md)
+- [`integration/SCHEDULER_RUNBOOK.md`](./integration/SCHEDULER_RUNBOOK.md)
+- [`integration/JAVA_JOBS_CRON_TABLE.md`](./integration/JAVA_JOBS_CRON_TABLE.md)
+- [`../ui/2_ARCHITECTURE/API_INTEGRATION.md`](../ui/2_ARCHITECTURE/API_INTEGRATION.md)
+
+### 2.3 Iteration
+
+用于解释“当前这轮做什么、怎么做、怎么拆任务”：
+
+- [`iterations/iteration-2/README.md`](./iterations/iteration-2/README.md)
+- [`iterations/iteration-2/ITERATION_2_SPEC.md`](./iterations/iteration-2/ITERATION_2_SPEC.md)
+- [`iterations/iteration-2/ITERATION_2_DESIGN.md`](./iterations/iteration-2/ITERATION_2_DESIGN.md)
+- [`iterations/iteration-2/ITERATION_2_TASK_BREAKDOWN.md`](./iterations/iteration-2/ITERATION_2_TASK_BREAKDOWN.md)
+- 从属文档：[`iterations/iteration-2/FULL_UNIVERSE_REAL_DATA_PLAN.md`](./iterations/iteration-2/FULL_UNIVERSE_REAL_DATA_PLAN.md)
+- 历史参考：[`iterations/iteration-1/README.md`](./iterations/iteration-1/README.md)
+
+---
+
+## 3. 共享支撑文档
+
+这些文档不属于三条主线的主入口，但仍然有效：
+
+- [`DOCUMENT_TRACKS.md`](./DOCUMENT_TRACKS.md)
+- [`AI_DELIVERY_TEMPLATE.md`](./AI_DELIVERY_TEMPLATE.md)
+- [`SUPABASE_SETUP.md`](./SUPABASE_SETUP.md)
+- [`../ui/3_IMPLEMENTATION/UI_MODERNIZATION_DELIVERY_TEMPLATE.md`](../ui/3_IMPLEMENTATION/UI_MODERNIZATION_DELIVERY_TEMPLATE.md)
+- [`../prompt.md`](../prompt.md)
+- [`../data/ITERATION_DATA_CHANGE_NOTE_V1.md`](../data/ITERATION_DATA_CHANGE_NOTE_V1.md)
+
+---
+
+## 4. 冲突处理顺序
+
+如果文档之间出现冲突，按以下顺序判断：
+
+1. 当前代码实现
+2. [`DOCUMENT_TRACKS.md`](./DOCUMENT_TRACKS.md) 中定义的轨迹、角色与状态
+3. 当前活跃 Iteration 文档
+4. Integration 文档
+5. Initial 文档
+
+---
+
+## 5. 维护规则
+
+- 新文档必须先判断属于 `Initial`、`Integration` 还是 `Iteration`
+- 新文档必须登记到本索引
+- 当前活跃迭代变更时，必须同步更新：
+  - [`PROJECT_CONTEXT.md`](./PROJECT_CONTEXT.md)
+  - [`DOCUMENT_TRACKS.md`](./DOCUMENT_TRACKS.md)
+  - [`AGENTS.md`](../../AGENTS.md)
