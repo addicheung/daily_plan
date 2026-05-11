@@ -1,162 +1,1976 @@
-# DOCS_INDEX.md
+```markdown
+# API 统一验证与双版本对比测试平台
+## 设计方案 v1.0
 
-`docs/docs_v1` 的总导航页。
-本索引同时服务两类读者：
-
-- 人类协作者：快速知道“先看什么”
-- AI / 智能体：快速建立完整、低冲突、可执行的项目上下文
-
-文档体系采用双层结构：
-
-- 顶层按使用场景给入口
-- 底层按开发轨迹归档为 `Initial -> Integration -> Iteration`
+> 版本：1.0.0  
+> 状态：技术评审通过  
+> 更新日期：2026-05-11
 
 ---
 
-## 1. 推荐入口
+## 目录
 
-### 1.1 第一次进入项目
-
-先看：
-
-- [`START_HERE.md`](./START_HERE.md)
-
-然后按顺序继续：
-
-1. [`PROJECT_CONTEXT.md`](./PROJECT_CONTEXT.md)
-2. [`integration/README.md`](./integration/README.md)
-3. [`iterations/iteration-2/README.md`](./iterations/iteration-2/README.md)
-
-### 1.2 需要让 AI 快速理解整个项目
-
-固定顺序：
-
-1. [`PROJECT_CONTEXT.md`](./PROJECT_CONTEXT.md)
-2. [`DOCS_INDEX.md`](./DOCS_INDEX.md)
-3. [`iterations/iteration-2/README.md`](./iterations/iteration-2/README.md)
-4. [`integration/README.md`](./integration/README.md)
-5. [`initial/README.md`](./initial/README.md)
-
-### 1.3 理解当前系统事实
-
-先看：
-
-- [`integration/README.md`](./integration/README.md)
-
-再按问题深入：
-
-- [`integration/UI_BACKEND_ALIGNMENT_DELIVERY.md`](./integration/UI_BACKEND_ALIGNMENT_DELIVERY.md)
-- [`integration/OPENAPI_DRAFT_FINAL.yaml`](./integration/OPENAPI_DRAFT_FINAL.yaml)
-- [`../ui/2_ARCHITECTURE/API_INTEGRATION.md`](../ui/2_ARCHITECTURE/API_INTEGRATION.md)
-
-### 1.4 继续当前开发
-
-先看：
-
-- [`iterations/iteration-2/README.md`](./iterations/iteration-2/README.md)
-
-推荐顺序：
-
-1. [`iterations/iteration-2/ITERATION_2_SPEC.md`](./iterations/iteration-2/ITERATION_2_SPEC.md)
-2. [`iterations/iteration-2/ITERATION_2_DESIGN.md`](./iterations/iteration-2/ITERATION_2_DESIGN.md)
-3. [`iterations/iteration-2/ITERATION_2_TASK_BREAKDOWN.md`](./iterations/iteration-2/ITERATION_2_TASK_BREAKDOWN.md)
-
-补充入口：
-
-- [`iterations/iteration-2/FULL_UNIVERSE_REAL_DATA_PLAN.md`](./iterations/iteration-2/FULL_UNIVERSE_REAL_DATA_PLAN.md)
-
-说明：
-
-- `iteration-2` 当前同时覆盖 `sample real-data` 与 `full-universe real-data`
-- `FULL_UNIVERSE_REAL_DATA_PLAN.md` 是 subordinate execution note / implementation note
-- 它不替代 `ITERATION_2_SPEC.md`、`ITERATION_2_DESIGN.md`、`ITERATION_2_TASK_BREAKDOWN.md`
-
-### 1.5 追历史设计
-
-先看：
-
-- [`initial/README.md`](./initial/README.md)
-
-如果问题是 UI 原始设计，再继续看：
-
-- [`../ui/README.md`](../ui/README.md)
+1. [项目目标](#1-项目目标)
+2. [核心能力](#2-核心能力)
+3. [技术选型](#3-技术选型)
+4. [系统架构](#4-系统架构)
+5. [Maven 模块设计](#5-maven-模块设计)
+6. [DSL 设计](#6-dsl-设计)
+7. [核心对象设计](#7-核心对象设计)
+8. [执行流程](#8-执行流程)
+9. [Auth 插件机制](#9-auth-插件机制)
+10. [Compare Engine](#10-compare-engine)
+11. [Normalizer](#11-normalizer)
+12. [动态 JUnit 执行](#12-动态-junit-执行)
+13. [安全设计](#13-安全设计)
+14. [CLI 设计](#14-cli-设计)
+15. [报告设计](#15-报告设计)
+16. [CI/CD 集成](#16-cicd-集成)
+17. [Docker 发布](#17-docker-发布)
+18. [Portal 设计（二期）](#18-portal-设计二期)
+19. [并发执行设计](#19-并发执行设计)
+20. [实施计划](#20-实施计划)
+21. [关键风险与应对](#21-关键风险与应对)
+22. [最终价值](#22-最终价值)
 
 ---
 
-## 2. 归档结构
+## 1. 项目目标
 
-### 2.1 Initial
+构建一个面向 API 开发者、测试人员、下游系统开发者及外部合作方的**统一 API 验证平台**，支持：
 
-用于解释“项目最初是怎么被设计出来的”：
-
-- [`initial/README.md`](./initial/README.md)
-- [`initial/SPEC_FINAL.md`](./initial/SPEC_FINAL.md)
-- [`initial/SYSTEM_DESIGN_FINAL.md`](./initial/SYSTEM_DESIGN_FINAL.md)
-- [`initial/FINAL_EXECUTION_PLAN.md`](./initial/FINAL_EXECUTION_PLAN.md)
-- [`initial/TECH_STACK_FINAL.md`](./initial/TECH_STACK_FINAL.md)
-- [`initial/TIME_CUTOFFS_FINAL.md`](./initial/TIME_CUTOFFS_FINAL.md)
-- [`initial/DB_SCHEMA.md`](./initial/DB_SCHEMA.md)
-- [`initial/BACKTEST_CONTRACT.md`](./initial/BACKTEST_CONTRACT.md)
-- [`initial/BUSINESS_AND_USER_FLOWS.md`](./initial/BUSINESS_AND_USER_FLOWS.md)
-
-### 2.2 Integration
-
-用于解释“项目现在怎么接起来、怎么运行、怎么验收”：
-
-- [`integration/README.md`](./integration/README.md)
-- [`integration/UI_BACKEND_ALIGNMENT_DELIVERY.md`](./integration/UI_BACKEND_ALIGNMENT_DELIVERY.md)
-- [`integration/OPENAPI_DRAFT_FINAL.yaml`](./integration/OPENAPI_DRAFT_FINAL.yaml)
-- [`integration/ACCEPTANCE_TEST_FINAL.md`](./integration/ACCEPTANCE_TEST_FINAL.md)
-- [`integration/ACCEPTANCE_RUNBOOK.md`](./integration/ACCEPTANCE_RUNBOOK.md)
-- [`integration/LOCAL_RUNBOOK.md`](./integration/LOCAL_RUNBOOK.md)
-- [`integration/PYTHON_RUNBOOK.md`](./integration/PYTHON_RUNBOOK.md)
-- [`integration/SCHEDULER_RUNBOOK.md`](./integration/SCHEDULER_RUNBOOK.md)
-- [`integration/JAVA_JOBS_CRON_TABLE.md`](./integration/JAVA_JOBS_CRON_TABLE.md)
-- [`../ui/2_ARCHITECTURE/API_INTEGRATION.md`](../ui/2_ARCHITECTURE/API_INTEGRATION.md)
-
-### 2.3 Iteration
-
-用于解释“当前这轮做什么、怎么做、怎么拆任务”：
-
-- [`iterations/iteration-2/README.md`](./iterations/iteration-2/README.md)
-- [`iterations/iteration-2/ITERATION_2_SPEC.md`](./iterations/iteration-2/ITERATION_2_SPEC.md)
-- [`iterations/iteration-2/ITERATION_2_DESIGN.md`](./iterations/iteration-2/ITERATION_2_DESIGN.md)
-- [`iterations/iteration-2/ITERATION_2_TASK_BREAKDOWN.md`](./iterations/iteration-2/ITERATION_2_TASK_BREAKDOWN.md)
-- 从属文档：[`iterations/iteration-2/FULL_UNIVERSE_REAL_DATA_PLAN.md`](./iterations/iteration-2/FULL_UNIVERSE_REAL_DATA_PLAN.md)
-- 历史参考：[`iterations/iteration-1/README.md`](./iterations/iteration-1/README.md)
+- API 功能验证与自动化回归测试
+- API 新旧版本双向对比验证
+- 发布门禁质量校验（CI Gate）
+- 对外标准化测试能力开放（自助联调）
+- 历史报告趋势分析与质量度量
 
 ---
 
-## 3. 共享支撑文档
+## 2. 核心能力
 
-这些文档不属于三条主线的主入口，但仍然有效：
+### 2.1 基础验证
 
-- [`DOCUMENT_TRACKS.md`](./DOCUMENT_TRACKS.md)
-- [`AI_DELIVERY_TEMPLATE.md`](./AI_DELIVERY_TEMPLATE.md)
-- [`SUPABASE_SETUP.md`](./SUPABASE_SETUP.md)
-- [`../ui/3_IMPLEMENTATION/UI_MODERNIZATION_DELIVERY_TEMPLATE.md`](../ui/3_IMPLEMENTATION/UI_MODERNIZATION_DELIVERY_TEMPLATE.md)
-- [`../prompt.md`](../prompt.md)
-- [`../data/ITERATION_DATA_CHANGE_NOTE_V1.md`](../data/ITERATION_DATA_CHANGE_NOTE_V1.md)
+| 能力 | 说明 |
+|------|------|
+| HTTP 状态码校验 | 精确匹配 / 范围匹配 |
+| JSON 字段校验 | JSONPath 表达式断言 |
+| Header 校验 | 精确 / 包含 / 正则 |
+| Schema 校验 | JSON Schema Draft-07 |
+| 条件断言 | when 条件成立才执行断言 |
+| Token 提取与变量传递 | JSONPath / Regex / Header 提取 |
+| 环境切换 | dev / uat / prod 多环境 |
+| 超时控制 | Case 级 / Suite 级独立配置 |
+| 重试机制 | 指定次数与间隔，支持条件重试 |
+
+### 2.2 双版本对比
+
+| 模式 | 说明 |
+|------|------|
+| Strict | 完全一致（字段、顺序、值） |
+| Semantic | 允许字段顺序不同，允许新增 optional 字段 |
+| Backward Compatible | 旧版本所有字段在新版本必须存在且兼容 |
+| Custom Field | 只对比指定字段集合 |
+| Response Time | 响应耗时对比，支持阈值告警 |
+
+### 2.3 平台化能力
+
+| 能力 | 说明 |
+|------|------|
+| CLI 执行 | 本地开发者直接运行 |
+| Docker 执行 | 容器化隔离运行 |
+| CI/CD 集成 | Jenkins / GitHub Actions / GitLab CI |
+| 报告输出 | Allure / HTML Diff / JSON |
+| 历史趋势 | 多次执行结果对比，Pass Rate 趋势 |
+| Portal | 在线执行、报告查看、Diff 可视化（二期） |
 
 ---
 
-## 4. 冲突处理顺序
+## 3. 技术选型
 
-如果文档之间出现冲突，按以下顺序判断：
-
-1. 当前代码实现
-2. [`DOCUMENT_TRACKS.md`](./DOCUMENT_TRACKS.md) 中定义的轨迹、角色与状态
-3. 当前活跃 Iteration 文档
-4. Integration 文档
-5. Initial 文档
+| 模块 | 技术 | 选型理由 |
+|------|------|----------|
+| 语言 | Java 21 | Virtual Thread 支持高并发，LTS 版本 |
+| 测试执行 | JUnit 5 | 动态测试 @TestFactory，原生 CI 支持 |
+| HTTP 引擎 | REST Assured 5.x | 声明式 API，链式断言，成熟稳定 |
+| DSL 解析 | Jackson YAML + JSON Schema Validator | YAML 解析 + DSL 文件合法性校验 |
+| CLI | Picocli | 注解驱动，自动生成 help，GraalVM 兼容 |
+| 报告 | Allure 2 | 丰富的附件、步骤、时间线支持 |
+| JSON 对比 | JsonUnit 3.x | 灵活忽略策略，语义对比支持完善 |
+| JSONPath | Jayway JsonPath | 工业级 JSONPath 实现 |
+| JSON Schema | networknt json-schema-validator | 支持 Draft-07/2019-09/2020-12 |
+| 密钥管理 | 环境变量 + Vault（可选） | 杜绝明文敏感信息 |
+| Portal 后端 | Spring Boot 3.x | 主流，生态完善 |
+| Portal 前端 | React 18 + Ant Design | 企业级 UI 组件 |
+| 实时推送 | SSE（Server-Sent Events） | 执行日志实时流式推送 |
+| 报告存储 | 本地文件系统 / MinIO（可选） | 历史报告持久化 |
 
 ---
 
-## 5. 维护规则
+## 4. 系统架构
 
-- 新文档必须先判断属于 `Initial`、`Integration` 还是 `Iteration`
-- 新文档必须登记到本索引
-- 当前活跃迭代变更时，必须同步更新：
-  - [`PROJECT_CONTEXT.md`](./PROJECT_CONTEXT.md)
-  - [`DOCUMENT_TRACKS.md`](./DOCUMENT_TRACKS.md)
-  - [`AGENTS.md`](../../AGENTS.md)
+```text
+┌─────────────────────────────────────────────────────────┐
+│                     入口层 Entry Layer                    │
+│        CLI          Portal(二期)       CI/CD Hook         │
+└────────────┬────────────────┬──────────────┬────────────┘
+             │                │              │
+             ▼                ▼              ▼
+┌─────────────────────────────────────────────────────────┐
+│               执行协调层 Execution Coordinator            │
+│   Suite Scheduler │ Concurrency Manager │ Retry Manager  │
+└────────────────────────────┬────────────────────────────┘
+                             │
+             ┌───────────────┼───────────────┐
+             ▼               ▼               ▼
+┌────────────────┐  ┌───────────────┐  ┌──────────────┐
+│  Suite Loader  │  │  Env Manager  │  │ Auth Provider│
+│  DSL Validator │  │  Var Resolver │  │  Plugin SPI  │
+└────────────────┘  └───────────────┘  └──────────────┘
+             │               │               │
+             └───────────────┼───────────────┘
+                             ▼
+┌─────────────────────────────────────────────────────────┐
+│             请求执行层 Request Execution Engine           │
+│     HTTP Client │ Timeout Control │ Request Interceptor  │
+└────────────────────────────┬────────────────────────────┘
+                             │
+                ┌────────────┴────────────┐
+                ▼                         ▼
+┌─────────────────────┐     ┌────────────────────────────┐
+│   Assertion Engine  │     │      Compare Engine         │
+│  Status│JSON│Schema │     │  Normalizer │ DiffRenderer  │
+└──────────┬──────────┘     └────────────┬───────────────┘
+           │                             │
+           └──────────────┬──────────────┘
+                          ▼
+┌─────────────────────────────────────────────────────────┐
+│                  结果层 Result Layer                      │
+│    Extract Engine │ ExecutionResult │ CompareResult       │
+└────────────────────────────┬────────────────────────────┘
+                             │
+┌────────────────────────────┼────────────────────────────┐
+│                报告层 Report Layer                        │
+│    Allure Reporter │ HTML Diff │ JSON Reporter │ Trend   │
+└─────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 5. Maven 模块设计
+
+```text
+api-test-platform/
+ ├── api-test-core/
+ │    ├── model/
+ │    ├── spi/
+ │    └── util/
+ ├── api-test-dsl/
+ │    ├── parser/
+ │    ├── validator/
+ │    └── resolver/
+ ├── api-test-runner/
+ │    ├── engine/
+ │    ├── http/
+ │    ├── auth/
+ │    └── junit/
+ ├── api-test-compare/
+ │    ├── engine/
+ │    ├── normalizer/
+ │    └── diff/
+ ├── api-test-report/
+ │    ├── allure/
+ │    ├── html/
+ │    ├── json/
+ │    └── trend/
+ ├── api-test-cli/
+ ├── api-test-portal/
+ │    ├── api-test-portal-server/
+ │    └── api-test-portal-web/
+ ├── suites/
+ └── env/
+```
+
+---
+
+## 6. DSL 设计
+
+### 6.1 环境配置文件 env/uat.yaml
+
+```yaml
+env: uat
+baseUrl:
+  v1: https://api-v1.example.com
+  v2: https://api-v2.example.com
+
+timeout:
+  connect: 5000
+  read: 10000
+  write: 10000
+
+retry:
+  maxAttempts: 3
+  intervalMs: 1000
+  retryOnStatus: [502, 503, 504]
+
+auth:
+  type: oauth2
+  tokenUrl: ${AUTH_TOKEN_URL}
+  clientId: ${AUTH_CLIENT_ID}
+  clientSecret: ${AUTH_CLIENT_SECRET}
+```
+
+### 6.2 Suite 文件 suites/payment.yaml
+
+```yaml
+suite: payment
+version: "1.0"
+description: "支付模块核心流程验证"
+
+variables:
+  username: demo
+  currency: CNY
+  password: ${TEST_PASSWORD}
+
+compare:
+  enabled: true
+  mode: semantic
+  customFields:
+    - data.balance
+    - data.currency
+  timingThresholdMs: 500
+  failOnTimingExceed: false
+
+ignoreFields:
+  - traceId
+  - requestId
+  - timestamp
+  - nonce
+  - signature
+
+ignorePatterns:
+  - ".*Time$"
+  - ".*Id$"
+  - ".*Token$"
+
+globalAssert:
+  headers:
+    Content-Type: application/json
+
+hooks:
+  beforeSuite: setupTestData
+  afterSuite: cleanupTestData
+
+tests:
+
+  - id: tc_login
+    name: "用户登录获取 Token"
+    tags: [smoke, regression]
+    priority: P0
+
+    request:
+      method: POST
+      path: /api/login
+      headers:
+        Content-Type: application/json
+        X-Request-Source: api-test
+      body:
+        username: ${username}
+        password: ${password}
+
+    assert:
+      status: 200
+      json:
+        - path: "$.code"
+          expect: 0
+          op: eq
+        - path: "$.data.token"
+          op: exists
+        - path: "$.message"
+          expect: "success"
+          op: eq
+      schema: schemas/login_response.json
+
+    extract:
+      - var: token
+        from: json
+        path: "$.data.token"
+      - var: userId
+        from: json
+        path: "$.data.userId"
+
+    retry:
+      maxAttempts: 2
+      intervalMs: 500
+
+    timeout:
+      read: 5000
+
+  - id: tc_query_balance
+    name: "查询账户余额"
+    tags: [regression]
+    priority: P1
+    dependsOn: tc_login
+    skipIf: "${token} == ''"
+
+    request:
+      method: GET
+      path: /api/balance
+      params:
+        currency: ${currency}
+      headers:
+        Authorization: "Bearer ${token}"
+        X-User-Id: ${userId}
+
+    assert:
+      status: 200
+      json:
+        - path: "$.code"
+          expect: 0
+          op: eq
+        - path: "$.data.balance"
+          op: gte
+          expect: 0
+        - path: "$.data.currency"
+          expect: ${currency}
+          op: eq
+      schema: schemas/balance_response.json
+
+    extract:
+      - var: currentBalance
+        from: json
+        path: "$.data.balance"
+
+  - id: tc_transfer
+    name: "发起转账"
+    tags: [regression]
+    priority: P1
+    dependsOn: tc_query_balance
+
+    request:
+      method: POST
+      path: /api/transfer
+      headers:
+        Authorization: "Bearer ${token}"
+        Content-Type: application/json
+      body:
+        fromUserId: ${userId}
+        amount: 100
+        currency: ${currency}
+        remark: "API Test Transfer"
+
+    assert:
+      status: 200
+      json:
+        - path: "$.code"
+          expect: 0
+          op: eq
+        - path: "$.data.transactionId"
+          op: exists
+
+    onFailure: continue
+```
+
+### 6.3 JSON Schema 示例 suites/schemas/login_response.json
+
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["code", "message", "data"],
+  "properties": {
+    "code": { "type": "integer" },
+    "message": { "type": "string" },
+    "data": {
+      "type": "object",
+      "required": ["token", "userId"],
+      "properties": {
+        "token": { "type": "string", "minLength": 10 },
+        "userId": { "type": "string" }
+      }
+    }
+  }
+}
+```
+
+### 6.4 DSL 字段速查表
+
+| 字段 | 层级 | 类型 | 必填 | 说明 |
+|------|------|------|------|------|
+| `suite` | Suite | String | ✅ | Suite 唯一名称 |
+| `version` | Suite | String | ✅ | DSL 版本号 |
+| `description` | Suite | String | ❌ | 描述 |
+| `variables` | Suite | Map | ❌ | 全局变量，非敏感 |
+| `compare.enabled` | Suite | Boolean | ❌ | 是否开启对比 |
+| `compare.mode` | Suite | Enum | ❌ | strict/semantic/backward-compatible/custom |
+| `compare.timingThresholdMs` | Suite | Long | ❌ | 响应时间差异告警阈值 |
+| `ignoreFields` | Suite | List | ❌ | 精确字段名过滤列表 |
+| `ignorePatterns` | Suite | List | ❌ | 正则字段名过滤列表 |
+| `globalAssert` | Suite | Object | ❌ | 全局断言，每个 case 继承 |
+| `hooks` | Suite | Object | ❌ | Suite 级前后置钩子 |
+| `id` | Case | String | ✅ | Case 唯一 ID |
+| `name` | Case | String | ✅ | Case 名称 |
+| `tags` | Case | List | ❌ | 标签，用于过滤执行 |
+| `priority` | Case | Enum | ❌ | P0/P1/P2 |
+| `dependsOn` | Case | String | ❌ | 依赖的 case id |
+| `skipIf` | Case | String | ❌ | 条件跳过表达式 |
+| `onFailure` | Case | Enum | ❌ | continue/abort/retry |
+| `request.method` | Case | Enum | ✅ | GET/POST/PUT/DELETE 等 |
+| `request.path` | Case | String | ✅ | 相对路径 |
+| `request.headers` | Case | Map | ❌ | 请求头 |
+| `request.params` | Case | Map | ❌ | Query 参数 |
+| `request.body` | Case | Object | ❌ | 请求体 |
+| `assert.status` | Case | Integer | ❌ | 期望 HTTP 状态码 |
+| `assert.json` | Case | List | ❌ | JSON 断言列表 |
+| `assert.schema` | Case | String | ❌ | JSON Schema 文件路径 |
+| `extract` | Case | List | ❌ | 变量提取规格列表 |
+| `retry` | Case | Object | ❌ | 覆盖全局重试配置 |
+| `timeout` | Case | Object | ❌ | 覆盖全局超时配置 |
+
+---
+
+## 7. 核心对象设计
+
+### 7.1 TestSuite
+
+```java
+@Data
+@Builder
+public class TestSuite {
+    private String suiteId;
+    private String name;
+    private String version;
+    private String description;
+    private CompareConfig compareConfig;
+    private NormalizeConfig normalizeConfig;
+    private RetryConfig globalRetry;
+    private TimeoutConfig globalTimeout;
+    private Map<String, String> variables;
+    private AssertConfig globalAssert;
+    private HookConfig hooks;
+    private List<ApiCase> cases;
+}
+```
+
+### 7.2 ApiCase
+
+```java
+@Data
+@Builder
+public class ApiCase {
+    private String id;
+    private String name;
+    private List<String> tags;
+    private String priority;
+    private String dependsOn;
+    private String skipIf;
+    private FailureAction onFailure;
+    private RequestSpec request;
+    private AssertSpec asserts;
+    private List<ExtractSpec> extracts;
+    private RetryConfig retry;
+    private TimeoutConfig timeout;
+
+    @Data
+    public static class RequestSpec {
+        private HttpMethod method;
+        private String path;
+        private Map<String, String> headers;
+        private Map<String, String> params;
+        private Object body;
+        private String bodyFile;
+        private String contentType;
+    }
+
+    @Data
+    public static class AssertSpec {
+        private Integer status;
+        private List<JsonAssert> json;
+        private Map<String, String> headers;
+        private String schema;
+        private Long maxResponseTimeMs;
+    }
+
+    @Data
+    public static class JsonAssert {
+        private String path;
+        private Object expect;
+        private AssertOp op;
+    }
+
+    @Data
+    public static class ExtractSpec {
+        private String var;
+        private ExtractFrom from;
+        private String path;
+        private String defaultValue;
+    }
+}
+```
+
+### 7.3 ExecutionContext
+
+```java
+public class ExecutionContext {
+
+    private final String executionId;
+    private final String suiteId;
+    private final String envName;
+    private final EnvConfig envConfig;
+    private final Instant startTime;
+    private final ConcurrentHashMap<String, String> variables;
+    private final ConcurrentHashMap<String, CaseResult> caseResults;
+
+    public void setVariable(String key, String value) {
+        variables.put(key, value);
+    }
+
+    public String resolve(String template) {
+        if (template == null) return null;
+        return VariableResolver.resolve(template, variables);
+    }
+
+    public boolean isDependencySatisfied(String dependsOnCaseId) {
+        if (dependsOnCaseId == null) return true;
+        CaseResult result = caseResults.get(dependsOnCaseId);
+        return result != null && result.isPassed();
+    }
+
+    public String getBaseUrl(String version) {
+        return envConfig.getBaseUrl(version);
+    }
+
+    public boolean evaluateSkipCondition(String skipIfExpr) {
+        if (skipIfExpr == null || skipIfExpr.isBlank()) return false;
+        return ExpressionEvaluator.evaluate(resolve(skipIfExpr));
+    }
+
+    public void recordResult(String caseId, CaseResult result) {
+        caseResults.put(caseId, result);
+    }
+}
+```
+
+### 7.4 CaseResult
+
+```java
+@Data
+@Builder
+public class CaseResult {
+    private String caseId;
+    private String caseName;
+    private ResultStatus status;
+    private HttpResponse baselineResponse;
+    private HttpResponse candidateResponse;
+    private List<AssertionResult> assertionResults;
+    private CompareResult compareResult;
+    private long durationMs;
+    private Instant executedAt;
+    private String failureReason;
+    private String errorDetail;
+
+    public boolean isPassed() {
+        return status == ResultStatus.PASSED;
+    }
+}
+```
+
+### 7.5 CompareResult
+
+```java
+@Data
+@Builder
+public class CompareResult {
+    private CompareMode mode;
+    private boolean passed;
+    private List<DiffItem> diffs;
+    private long baselineDurationMs;
+    private long candidateDurationMs;
+    private long timingDiffMs;
+    private boolean timingExceeded;
+
+    @Data
+    @Builder
+    public static class DiffItem {
+        private String fieldPath;
+        private Object baselineValue;
+        private Object candidateValue;
+        private DiffType type;
+    }
+}
+```
+
+### 7.6 HttpResponse
+
+```java
+@Data
+@Builder
+public class HttpResponse {
+    private int statusCode;
+    private Map<String, String> headers;
+    private String bodyRaw;
+    private Object bodyParsed;
+    private long durationMs;
+    private String version;
+}
+```
+
+### 7.7 枚举类型定义
+
+```java
+public enum AssertOp {
+    EQ, NE, GT, LT, GTE, LTE, EXISTS, NOT_EXISTS, CONTAINS, MATCHES
+}
+
+public enum ExtractFrom {
+    JSON, HEADER, COOKIE, REGEX
+}
+
+public enum FailureAction {
+    CONTINUE, ABORT, RETRY
+}
+
+public enum ResultStatus {
+    PASSED, FAILED, SKIPPED, ERROR
+}
+
+public enum CompareMode {
+    STRICT, SEMANTIC, BACKWARD_COMPATIBLE, CUSTOM
+}
+
+public enum DiffType {
+    MISSING, ADDED, CHANGED, TYPE_CHANGED
+}
+```
+
+---
+
+## 8. 执行流程
+
+```text
+┌─────────────────────────────────────────────────────────┐
+│                    Load & Validate Suite                  │
+│  1. 读取 YAML 文件                                        │
+│  2. JSON Schema 校验 DSL 合法性 → 非法则 Fast Fail        │
+│  3. 解析为 TestSuite 对象                                 │
+└────────────────────────────┬────────────────────────────┘
+                             ▼
+┌─────────────────────────────────────────────────────────┐
+│                   Initialize Context                      │
+│  1. 生成 executionId（UUID）                              │
+│  2. 加载环境配置（env/uat.yaml）                          │
+│  3. 注入环境变量（替换 ${ENV_VAR} 占位符）                │
+│  4. 初始化 Auth Provider（获取初始 Token）                │
+│  5. 初始化 ExecutionContext                               │
+└────────────────────────────┬────────────────────────────┘
+                             ▼
+┌─────────────────────────────────────────────────────────┐
+│               依赖解析（拓扑排序）                        │
+│  1. 构建 Case 依赖有向图                                  │
+│  2. 拓扑排序，检测循环依赖 → 发现则 Fast Fail             │
+│  3. 生成有序执行列表                                      │
+└────────────────────────────┬────────────────────────────┘
+                             ▼
+┌─────────────────────────────────────────────────────────┐
+│                  Execute Cases（有序）                    │
+│                                                           │
+│  for each ApiCase:                                        │
+│    ├─ 检查 skipIf 条件 → 满足则标记 SKIPPED，跳过         │
+│    ├─ 检查 dependsOn → 依赖未通过则标记 SKIPPED，跳过     │
+│    ├─ Resolve Variables（替换请求中所有 ${var}）          │
+│    ├─ Apply Auth（注入认证信息，检查 Token 是否过期）      │
+│    │                                                      │
+│    ├─ [Baseline] Execute HTTP Request                     │
+│    │    ├─ 超时控制（Case 级覆盖 Suite 级）               │
+│    │    ├─ 失败重试（按 retry 配置）                      │
+│    │    └─ 捕获 Response + Duration                       │
+│    │                                                      │
+│    ├─ [Candidate] Execute HTTP Request（compare 模式）    │
+│    │    └─ 同上                                           │
+│    │                                                      │
+│    ├─ Normalize（过滤动态字段）                           │
+│    │                                                      │
+│    ├─ Assert（对 Baseline Response 执行断言）             │
+│    │    ├─ Status Assert                                  │
+│    │    ├─ JSON Assert（JSONPath + op）                   │
+│    │    ├─ Header Assert                                  │
+│    │    ├─ Schema Assert                                  │
+│    │    └─ Response Time Assert                           │
+│    │                                                      │
+│    ├─ Compare（compare 模式下执行）                       │
+│    │    └─ 生成 CompareResult + DiffItems                 │
+│    │                                                      │
+│    ├─ Extract（从 Baseline Response 提取变量）            │
+│    │    └─ 写入 ExecutionContext.variables                │
+│    │                                                      │
+│    └─ 记录 CaseResult → 根据 onFailure 策略决定后续       │
+│         ├─ CONTINUE → 继续下一个 case                     │
+│         ├─ ABORT    → 终止 Suite 执行                     │
+│         └─ RETRY    → 重试当前 case                       │
+└────────────────────────────┬────────────────────────────┘
+                             ▼
+┌─────────────────────────────────────────────────────────┐
+│                    Generate Report                        │
+│  1. 汇总所有 CaseResult → SuiteResult                    │
+│  2. 生成 Allure 报告                                      │
+│  3. 生成 HTML Diff 报告                                   │
+│  4. 生成 JSON 结果（CI Gate 消费）                        │
+│  5. 持久化历史数据（趋势分析）                            │
+└────────────────────────────┬────────────────────────────┘
+                             ▼
+┌─────────────────────────────────────────────────────────┐
+│                      Exit Code                           │
+│  全部通过 → exit 0                                        │
+│  存在失败 → exit 1（CI 阻断）                             │
+│  执行异常 → exit 2（平台错误）                            │
+└─────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 9. Auth 插件机制
+
+### 9.1 SPI 接口
+
+```java
+public interface AuthProvider {
+    String type();
+    void initialize(AuthConfig config, ExecutionContext context) throws AuthException;
+    void applyAuth(ApiCase.RequestSpec request, ExecutionContext context);
+    boolean isExpired();
+    void refresh(ExecutionContext context) throws AuthException;
+}
+```
+
+### 9.2 内置实现
+
+| 实现类 | 认证类型 | 说明 |
+|--------|----------|------|
+| `OAuth2AuthProvider` | oauth2 | Client Credentials / Password 模式 |
+| `ApiKeyAuthProvider` | api-key | Header 或 Query Param 注入 |
+| `JwtAuthProvider` | jwt | 本地签发 JWT，支持 RS256/HS256 |
+| `HmacAuthProvider` | hmac | HMAC-SHA256 请求签名 |
+| `RsaSignAuthProvider` | rsa | RSA 私钥请求签名 |
+| `BasicAuthProvider` | basic | HTTP Basic Auth |
+| `NoAuthProvider` | none | 无认证（默认） |
+
+### 9.3 DSL 配置示例
+
+```yaml
+auth:
+  type: oauth2
+  tokenUrl: ${AUTH_TOKEN_URL}
+  clientId: ${AUTH_CLIENT_ID}
+  clientSecret: ${AUTH_CLIENT_SECRET}
+  scope: "api:read api:write"
+  refreshBeforeExpirySeconds: 60
+```
+
+### 9.4 自定义插件扩展
+
+```java
+// 1. 实现 AuthProvider 接口
+public class CustomSignAuthProvider implements AuthProvider {
+    @Override
+    public String type() { return "custom-sign"; }
+
+    @Override
+    public void applyAuth(ApiCase.RequestSpec request, ExecutionContext context) {
+        // 自定义签名逻辑
+    }
+}
+// 2. 在 META-INF/services/com.example.spi.AuthProvider 中注册
+// 3. 在 env.yaml 中声明 auth.type: custom-sign
+```
+
+---
+
+## 10. Compare Engine
+
+### 10.1 SPI 接口
+
+```java
+public interface CompareEngine {
+    CompareMode supportedMode();
+    CompareResult compare(String baseline, String candidate, CompareConfig config);
+}
+```
+
+### 10.2 各模式实现
+
+```java
+// Strict：完全一致
+public class StrictCompareEngine implements CompareEngine {
+    @Override
+    public CompareMode supportedMode() { return CompareMode.STRICT; }
+
+    @Override
+    public CompareResult compare(String baseline, String candidate, CompareConfig config) {
+        // JsonUnit 严格模式，任意差异记录为 DiffItem
+    }
+}
+
+// Semantic：语义等价，允许字段顺序不同，允许 candidate 新增字段
+public class SemanticCompareEngine implements CompareEngine {
+    @Override
+    public CompareMode supportedMode() { return CompareMode.SEMANTIC; }
+
+    @Override
+    public CompareResult compare(String baseline, String candidate, CompareConfig config) {
+        // JsonUnit.when(Option.IGNORING_EXTRA_FIELDS)
+    }
+}
+
+// Backward Compatible：旧版本字段必须在新版本中存在且类型兼容
+public class BackwardCompatibleCompareEngine implements CompareEngine {
+    @Override
+    public CompareMode supportedMode() { return CompareMode.BACKWARD_COMPATIBLE; }
+
+    @Override
+    public CompareResult compare(String baseline, String candidate, CompareConfig config) {
+        // 递归遍历 baseline 字段树，在 candidate 中逐一验证
+    }
+}
+
+// Custom：只对比指定字段
+public class CustomFieldCompareEngine implements CompareEngine {
+    @Override
+    public CompareMode supportedMode() { return CompareMode.CUSTOM; }
+
+    @Override
+    public CompareResult compare(String baseline, String candidate, CompareConfig config) {
+        // 根据 config.customFields 提取值后比较
+    }
+}
+```
+
+### 10.3 CompareConfig
+
+```java
+@Data
+@Builder
+public class CompareConfig {
+    private boolean enabled;
+    private CompareMode mode;
+    private List<String> customFields;
+    private long timingThresholdMs;
+    private boolean failOnTimingExceed;
+}
+```
+
+### 10.4 CompareEngine 工厂
+
+```java
+public class CompareEngineFactory {
+    private static final Map<CompareMode, CompareEngine> ENGINES = Map.of(
+        CompareMode.STRICT,              new StrictCompareEngine(),
+        CompareMode.SEMANTIC,            new SemanticCompareEngine(),
+        CompareMode.BACKWARD_COMPATIBLE, new BackwardCompatibleCompareEngine(),
+        CompareMode.CUSTOM,              new CustomFieldCompareEngine()
+    );
+
+    public static CompareEngine get(CompareMode mode) {
+        CompareEngine engine = ENGINES.get(mode);
+        if (engine == null) throw new IllegalArgumentException("Unsupported mode: " + mode);
+        return engine;
+    }
+}
+```
+
+---
+
+## 11. Normalizer
+
+### 11.1 NormalizeConfig
+
+```java
+@Data
+@Builder
+public class NormalizeConfig {
+    private List<String> ignoreFields;
+    private List<String> ignorePatterns;
+}
+```
+
+### 11.2 ResponseNormalizer 实现
+
+```java
+public class ResponseNormalizer {
+
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private final NormalizeConfig config;
+    private final List<Pattern> compiledPatterns;
+
+    public ResponseNormalizer(NormalizeConfig config) {
+        this.config = config;
+        this.compiledPatterns = config.getIgnorePatterns().stream()
+            .map(Pattern::compile)
+            .collect(Collectors.toList());
+    }
+
+    public String normalize(String responseBody) {
+        if (responseBody == null || responseBody.isBlank()) return responseBody;
+        try {
+            JsonNode root = MAPPER.readTree(responseBody);
+            removeFields(root);
+            return MAPPER.writeValueAsString(root);
+        } catch (JsonProcessingException e) {
+            throw new NormalizationException("Failed to normalize response body", e);
+        }
+    }
+
+    private void removeFields(JsonNode node) {
+        if (node.isObject()) {
+            ObjectNode obj = (ObjectNode) node;
+            List<String> toRemove = new ArrayList<>();
+            node.fieldNames().forEachRemaining(fieldName -> {
+                if (shouldIgnore(fieldName)) {
+                    toRemove.add(fieldName);
+                } else {
+                    removeFields(node.get(fieldName));
+                }
+            });
+            obj.remove(toRemove);
+        } else if (node.isArray()) {
+            node.forEach(this::removeFields);
+        }
+    }
+
+    private boolean shouldIgnore(String fieldName) {
+        if (config.getIgnoreFields().contains(fieldName)) return true;
+        return compiledPatterns.stream()
+            .anyMatch(p -> p.matcher(fieldName).matches());
+    }
+}
+```
+
+### 11.3 内置过滤字段参考
+
+| 字段类型 | 内置字段名 | 内置正则 |
+|----------|-----------|---------|
+| 追踪 ID | traceId, requestId, spanId | `.*Id$` |
+| 时间戳 | timestamp, createTime | `.*Time$` |
+| 随机值 | nonce, signature | — |
+| 令牌 | token | `.*Token$` |
+
+---
+
+## 12. 动态 JUnit 执行
+
+```java
+@ExtendWith(AllureJunit5.class)
+public class DynamicSuiteRunner {
+
+    @TestFactory
+    Stream<DynamicTest> runSuite(
+            @ConvertWith(SuiteArgConverter.class) TestSuite suite) {
+
+        ExecutionContext context = ExecutionContextFactory.create(suite);
+        List<ApiCase> ordered = DependencyResolver.topologicalSort(suite.getCases());
+
+        return ordered.stream().map(apiCase ->
+            DynamicTest.dynamicTest(
+                "[" + apiCase.getPriority() + "] " + apiCase.getName(),
+                () -> {
+                    if (context.evaluateSkipCondition(apiCase.getSkipIf())) {
+                        assumeTrue(false, "Skipped by skipIf: " + apiCase.getSkipIf());
+                        return;
+                    }
+
+                    if (!context.isDependencySatisfied(apiCase.getDependsOn())) {
+                        assumeTrue(false, "Dependency not satisfied: " + apiCase.getDependsOn());
+                        return;
+                    }
+
+                    CaseResult result = CaseExecutor.execute(apiCase, context);
+                    context.recordResult(apiCase.getId(), result);
+
+                    if (!result.isPassed() && apiCase.getOnFailure() == FailureAction.ABORT) {
+                        throw new SuiteAbortException(
+                            "Case failed with ABORT policy: " + apiCase.getName());
+                    }
+
+                    assertTrue(result.isPassed(), result.getFailureReason());
+                }
+            )
+        );
+    }
+}
+```
+
+| 优势 | 说明 |
+|------|------|
+| IDE 可运行 | IntelliJ / Eclipse 直接右键运行 |
+| CI 原生支持 | Maven Surefire 自动发现并执行 |
+| 无需手写 @Test | DSL 驱动，零冗余代码 |
+| 并行执行 | 配合 JUnit 5 并行配置可开启 |
+| Allure 集成 | @ExtendWith 自动采集步骤和附件 |
+
+---
+
+## 13. 安全设计
+
+### 13.1 敏感信息管理原则
+
+> ⚠️ 禁止在任何 YAML / 配置文件中明文存储密码、密钥、Token。
+
+```text
+敏感信息注入优先级（高 → 低）：
+  1. 命令行参数   --var key=value
+  2. 环境变量     export TEST_PASSWORD=xxx
+  3. HashiCorp Vault（生产推荐）
+  4. Kubernetes Secret（容器化部署）
+  5. YAML variables 块（仅允许非敏感默认值）
+```
+
+### 13.2 日志脱敏
+
+```java
+public class SensitiveDataMasker {
+
+    private static final Set<String> SENSITIVE_HEADER_KEYS = Set.of(
+        "authorization", "x-api-key", "x-auth-token"
+    );
+
+    private static final Set<String> SENSITIVE_BODY_KEYS = Set.of(
+        "password", "secret", "token", "apiKey",
+        "clientSecret", "privateKey", "accessToken"
+    );
+
+    private static final String MASK = "****";
+
+    public static HttpResponse mask(HttpResponse response) {
+        return HttpResponse.builder()
+            .statusCode(response.getStatusCode())
+            .headers(maskHeaders(response.getHeaders()))
+            .bodyRaw(maskBody(response.getBodyRaw()))
+            .durationMs(response.getDurationMs())
+            .version(response.getVersion())
+            .build();
+    }
+
+    private static Map<String, String> maskHeaders(Map<String, String> headers) {
+        Map<String, String> masked = new LinkedHashMap<>(headers);
+        SENSITIVE_HEADER_KEYS.forEach(key ->
+            masked.computeIfPresent(key, (k, v) -> MASK));
+        return masked;
+    }
+}
+```
+
+### 13.3 安全规范检查清单
+
+- [ ] YAML 文件中无明文密码
+- [ ] Git 仓库 `.gitignore` 排除 `env/*.local.yaml`
+- [ ] CI 系统中敏感变量从 Secrets/Credentials 注入
+- [ ] 报告输出前经过 `SensitiveDataMasker` 处理
+- [ ] Docker 镜像不打包任何凭据
+- [ ] Allure 报告不对外公开发布（或做访问控制）
+
+---
+
+## 14. CLI 设计
+
+### 14.1 命令结构
+
+```java
+@Command(
+    name = "api-test",
+    subcommands = {
+        RunCommand.class,
+        CompareCommand.class,
+        ReportCommand.class,
+        ValidateCommand.class
+    },
+    mixinStandardHelpOptions = true,
+    version = "api-test 1.0.0",
+    description = "API 统一验证与双版本对比测试平台"
+)
+public class ApiTestCli implements Runnable {
+    public static void main(String[] args) {
+        int exitCode = new CommandLine(new ApiTestCli()).execute(args);
+        System.exit(exitCode);
+    }
+
+    @Override
+    public void run() {
+        new CommandLine(this).usage(System.out);
+    }
+}
+```
+
+### 14.2 run 命令
+
+```java
+@Command(name = "run", description = "执行指定 Suite")
+class RunCommand implements Callable<Integer> {
+
+    @Option(names = {"--suite", "-s"}, required = true)
+    private String suite;
+
+    @Option(names = {"--env", "-e"}, defaultValue = "dev")
+    private String env;
+
+    @Option(names = {"--tags"}, split = ",")
+    private List<String> tags;
+
+    @Option(names = {"--priority"})
+    private String priority;
+
+    @Option(names = {"--parallel"}, defaultValue = "false")
+    private boolean parallel;
+
+    @Option(names = {"--output", "-o"}, defaultValue = "./reports")
+    private String outputDir;
+
+    @Option(names = {"--var"}, split = ",")
+    private Map<String, String> extraVars;
+
+    @Override
+    public Integer call() {
+        return SuiteRunner.run(RunOptions.builder()
+            .suite(suite).env(env).tags(tags)
+            .priority(priority).parallel(parallel)
+            .outputDir(outputDir).extraVars(extraVars)
+            .build());
+    }
+}
+```
+
+### 14.3 compare 命令
+
+```java
+@Command(name = "compare", description = "执行双版本对比")
+class CompareCommand implements Callable<Integer> {
+
+    @Option(names = {"--suite", "-s"}, required = true)
+    private String suite;
+
+    @Option(names = {"--baseline"}, required = true)
+    private String baseline;
+
+    @Option(names = {"--candidate"}, required = true)
+    private String candidate;
+
+    @Option(names = {"--env", "-e"}, defaultValue = "uat")
+    private String env;
+
+    @Option(names = {"--mode"})
+    private String mode;
+
+    @Option(names = {"--fail-on-diff"}, defaultValue = "true")
+    private boolean failOnDiff;
+
+    @Option(names = {"--output", "-o"}, defaultValue = "./reports")
+    private String outputDir;
+
+    @Override
+    public Integer call() {
+        return CompareRunner.run(CompareOptions.builder()
+            .suite(suite).baseline(baseline).candidate(candidate)
+            .env(env).mode(mode).failOnDiff(failOnDiff).outputDir(outputDir)
+            .build());
+    }
+}
+```
+
+### 14.4 validate 命令
+
+```java
+@Command(name = "validate", description = "校验 DSL 文件合法性（不执行请求）")
+class ValidateCommand implements Callable<Integer> {
+
+    @Option(names = {"--suite", "-s"}, required = true)
+    private String suite;
+
+    @Option(names = {"--strict"}, defaultValue = "false")
+    private boolean strict;
+
+    @Override
+    public Integer call() {
+        ValidationResult result = DslValidator.validate(suite, strict);
+        result.getErrors().forEach(err -> System.err.println("[ERROR] " + err));
+        result.getWarnings().forEach(warn -> System.out.println("[WARN] " + warn));
+        return result.isValid() ? 0 : 1;
+    }
+}
+```
+
+### 14.5 使用示例
+
+```bash
+# 基本执行
+api-test run --suite payment --env uat
+
+# 按 Tag 过滤
+api-test run --suite payment --env uat --tags smoke,P0
+
+# 按优先级过滤
+api-test run --suite payment --env uat --priority P0
+
+# 注入额外变量
+api-test run --suite payment --env uat --var currency=USD,username=admin
+
+# 双版本对比
+api-test compare --suite payment --baseline v1 --candidate v2 --env uat
+
+# 自定义对比模式
+api-test compare --suite payment --baseline v1 --candidate v2 --mode strict
+
+# 仅校验 DSL
+api-test validate --suite payment
+
+# 严格校验
+api-test validate --suite payment --strict
+
+# 查看帮助
+api-test --help
+api-test run --help
+```
+
+---
+
+## 15. 报告设计
+
+### 15.1 Allure 报告
+
+```java
+@Step("执行请求: {method} {path}")
+public HttpResponse executeRequest(String method, String path, ApiCase.RequestSpec spec) {
+
+    Allure.addAttachment("Request Headers", "application/json",
+        JsonUtil.toJson(SensitiveDataMasker.maskHeaders(spec.getHeaders())));
+    Allure.addAttachment("Request Body", "application/json",
+        JsonUtil.toJson(spec.getBody()));
+
+    HttpResponse response = httpClient.execute(spec);
+
+    Allure.addAttachment("Response Body", "application/json",
+        SensitiveDataMasker.maskBody(response.getBodyRaw()));
+    Allure.addAttachment("Response Headers", "application/json",
+        JsonUtil.toJson(response.getHeaders()));
+
+    Allure.label("duration", response.getDurationMs() + "ms");
+    Allure.label("status", String.valueOf(response.getStatusCode()));
+
+    return response;
+}
+```
+
+| 内容 | 说明 |
+|------|------|
+| 请求详情 | Method、Path、Headers、Body（脱敏） |
+| 响应详情 | Status、Headers、Body（脱敏） |
+| 断言结果 | 每条断言的 Pass/Fail 状态及详情 |
+| 对比 Diff | 字段级差异列表 |
+| 执行时间 | Case 级 / Suite 级耗时 |
+| 时间线 | Suite 内 Case 执行顺序时间轴 |
+| 历史趋势 | Pass Rate 历史变化曲线 |
+
+### 15.2 JSON 报告（CI Gate）
+
+```json
+{
+  "executionId": "exec-20240115-143022-550e8400",
+  "suite": "payment",
+  "env": "uat",
+  "startTime": "2024-01-15T14:30:22Z",
+  "endTime": "2024-01-15T14:30:45Z",
+  "durationMs": 23000,
+  "summary": {
+    "total": 10,
+    "passed": 9,
+    "failed": 1,
+    "skipped": 0,
+    "error": 0,
+    "passRate": 0.90
+  },
+  "compareEnabled": true,
+  "compareSummary": {
+    "totalCompared": 8,
+    "identical": 7,
+    "diffFound": 1,
+    "timingExceeded": 0
+  },
+  "ciGate": {
+    "passed": false,
+    "blockingReason": "Case [tc_transfer] assertion failed: $.code expected 0 but was 1003"
+  },
+  "cases": [
+    {
+      "id": "tc_login",
+      "name": "用户登录获取 Token",
+      "status": "PASSED",
+      "durationMs": 320,
+      "tags": ["smoke", "regression"]
+    },
+    {
+      "id": "tc_transfer",
+      "name": "发起转账",
+      "status": "FAILED",
+      "durationMs": 1230,
+      "failureReason": "$.code expected 0 but was 1003",
+      "compareResult": {
+        "passed": false,
+        "mode": "SEMANTIC",
+        "diffs": [
+          {
+            "fieldPath": "$.data.fee",
+            "baselineValue": 5,
+            "candidateValue": 10,
+            "type": "CHANGED"
+          }
+        ],
+        "baselineDurationMs": 320,
+        "candidateDurationMs": 910,
+        "timingDiffMs": 590,
+        "timingExceeded": true
+      }
+    }
+  ]
+}
+```
+
+### 15.3 HTML Diff 报告结构
+
+```html
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>API Compare Report - payment</title>
+  <style>
+    .diff-changed { background-color: #fff3cd; }
+    .diff-added   { background-color: #d4edda; }
+    .diff-missing { background-color: #f8d7da; }
+    .diff-table   { width: 100%; border-collapse: collapse; }
+    .diff-table td { padding: 8px; border: 1px solid #dee2e6; }
+  </style>
+</head>
+<body>
+  <h1>API Compare Report</h1>
+  <p>Suite: payment | Env: uat | Baseline: v1 | Candidate: v2</p>
+  <details open>
+    <summary>[FAILED] tc_transfer - 发起转账</summary>
+    <table class="diff-table">
+      <thead>
+        <tr>
+          <th>字段路径</th><th>基线值 (v1)</th><th>候选值 (v2)</th><th>差异类型</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="diff-changed">
+          <td>$.data.fee</td><td>5</td><td>10</td><td>CHANGED</td>
+        </tr>
+        <tr class="diff-added">
+          <td>$.data.feeType</td><td>-</td><td>"fixed"</td><td>ADDED</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>响应时间差异：v1=320ms | v2=910ms | diff=590ms ⚠️ 超过阈值 500ms</p>
+  </details>
+  <details>
+    <summary>[PASSED] tc_login - 用户登录获取 Token</summary>
+    <p>✅ 无差异</p>
+  </details>
+</body>
+</html>
+```
+
+### 15.4 历史趋势数据
+
+```json
+{
+  "suite": "payment",
+  "history": [
+    {
+      "executionId": "exec-20240115-143022",
+      "date": "2024-01-15",
+      "passRate": 0.90,
+      "durationMs": 23000,
+      "total": 10,
+      "passed": 9,
+      "failed": 1
+    },
+    {
+      "executionId": "exec-20240114-100011",
+      "date": "2024-01-14",
+      "passRate": 1.0,
+      "durationMs": 21000,
+      "total": 10,
+      "passed": 10,
+      "failed": 0
+    }
+  ]
+}
+```
+
+### 15.5 报告输出结构
+
+```text
+reports/
+ ├── allure-results/
+ ├── allure-report/
+ ├── html/
+ │    └── compare-report.html
+ ├── json/
+ │    └── result.json
+ └── history/
+      └── payment_trend.json
+```
+
+---
+
+## 16. CI/CD 集成
+
+### 16.1 Jenkins Pipeline
+
+```groovy
+pipeline {
+    agent any
+    environment {
+        TEST_PASSWORD       = credentials('api-test-password')
+        AUTH_CLIENT_ID      = credentials('api-auth-client-id')
+        AUTH_CLIENT_SECRET  = credentials('api-auth-client-secret')
+        AUTH_TOKEN_URL      = 'https://auth.example.com/oauth/token'
+    }
+    stages {
+        stage('Validate DSL') {
+            steps {
+                sh 'api-test validate --suite payment --strict'
+            }
+        }
+        stage('Smoke Test') {
+            steps {
+                sh 'api-test run --suite payment --env uat --tags smoke'
+            }
+        }
+        stage('Regression Test') {
+            steps {
+                sh 'api-test run --suite payment --env uat'
+            }
+        }
+        stage('Version Compare') {
+            steps {
+                sh 'api-test compare --suite payment --baseline v1 --candidate v2 --env uat'
+            }
+        }
+        stage('Publish Allure Report') {
+            steps {
+                allure includeProperties: false, jdk: '',
+                       results: [[path: 'reports/allure-results']]
+            }
+        }
+    }
+    post {
+        always {
+            archiveArtifacts artifacts: 'reports/json/**/*.json', allowEmptyArchive: true
+            script {
+                def result = readJSON file: 'reports/json/result.json'
+                if (!result.ciGate.passed) {
+                    error("CI Gate FAILED: ${result.ciGate.blockingReason}")
+                }
+            }
+        }
+        failure {
+            emailext subject: "API Test FAILED - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                     body: "请查看报告：${env.BUILD_URL}allure",
+                     to: 'team@example.com'
+        }
+    }
+}
+```
+
+### 16.2 GitHub Actions
+
+```yaml
+name: API Regression & Compare
+
+on:
+  pull_request:
+    branches: [main, "release/*"]
+  push:
+    branches: [main]
+
+jobs:
+  api-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Build
+        run: mvn package -DskipTests -pl api-test-cli -am -q
+
+      - name: Validate DSL
+        run: api-test validate --suite payment --strict
+
+      - name: Smoke Test
+        env:
+          TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+          AUTH_CLIENT_SECRET: ${{ secrets.AUTH_CLIENT_SECRET }}
+          AUTH_CLIENT_ID: ${{ secrets.AUTH_CLIENT_ID }}
+          AUTH_TOKEN_URL: ${{ secrets.AUTH_TOKEN_URL }}
+        run: api-test run --suite payment --env uat --tags smoke
+
+      - name: Regression & Compare
+        env:
+          TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+          AUTH_CLIENT_SECRET: ${{ secrets.AUTH_CLIENT_SECRET }}
+          AUTH_CLIENT_ID: ${{ secrets.AUTH_CLIENT_ID }}
+          AUTH_TOKEN_URL: ${{ secrets.AUTH_TOKEN_URL }}
+        run: |
+          api-test compare \
+            --suite payment \
+            --baseline v1 \
+            --candidate v2 \
+            --env uat
+
+      - name: Check CI Gate
+        run: |
+          PASSED=$(cat reports/json/result.json | jq '.ciGate.passed')
+          if [ "$PASSED" != "true" ]; then
+            REASON=$(cat reports/json/result.json | jq -r '.ciGate.blockingReason')
+            echo "::error::CI Gate FAILED: $REASON"
+            exit 1
+          fi
+
+      - name: Upload Allure Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: reports/allure-results/
+
+      - name: Upload JSON Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: json-report
+          path: reports/json/
+```
+
+### 16.3 GitLab CI
+
+```yaml
+stages:
+  - validate
+  - test
+  - compare
+  - report
+
+variables:
+  AUTH_TOKEN_URL: "https://auth.example.com/oauth/token"
+
+validate-dsl:
+  stage: validate
+  script:
+    - api-test validate --suite payment --strict
+
+smoke-test:
+  stage: test
+  script:
+    - api-test run --suite payment --env uat --tags smoke
+  variables:
+    TEST_PASSWORD: $TEST_PASSWORD
+    AUTH_CLIENT_SECRET: $AUTH_CLIENT_SECRET
+
+regression-compare:
+  stage: compare
+  script:
+    - api-test compare --suite payment --baseline v1 --candidate v2 --env uat
+  variables:
+    TEST_PASSWORD: $TEST_PASSWORD
+    AUTH_CLIENT_SECRET: $AUTH_CLIENT_SECRET
+  artifacts:
+    when: always
+    paths:
+      - reports/
+    expire_in: 7 days
+
+publish-report:
+  stage: report
+  script:
+    - allure generate reports/allure-results -o reports/allure-report --clean
+  artifacts:
+    paths:
+      - reports/allure-report/
+    expose_as: 'Allure Report'
+```
+
+---
+
+## 17. Docker 发布
+
+### 17.1 Dockerfile
+
+```dockerfile
+# 构建阶段
+FROM maven:3.9-eclipse-temurin-21-alpine AS builder
+WORKDIR /build
+COPY pom.xml .
+COPY api-test-core/pom.xml         api-test-core/
+COPY api-test-dsl/pom.xml          api-test-dsl/
+COPY api-test-runner/pom.xml       api-test-runner/
+COPY api-test-compare/pom.xml      api-test-compare/
+COPY api-test-report/pom.xml       api-test-report/
+COPY api-test-cli/pom.xml          api-test-cli/
+RUN mvn dependency:go-offline -q
+COPY . .
+RUN mvn package -DskipTests -pl api-test-cli -am -q
+
+# 运行阶段
+FROM eclipse-temurin:21-jre-alpine
+
+LABEL maintainer="platform-team@example.com"
+LABEL version="1.0.0"
+LABEL description="API 统一验证与双版本对比测试平台"
+
+RUN addgroup -S apitest && adduser -S apitest -G apitest
+USER apitest
+
+WORKDIR /app
+COPY --from=builder /build/api-test-cli/target/api-test-cli.jar app.jar
+
+VOLUME ["/app/suites", "/app/env", "/app/reports"]
+
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
+  CMD java -jar app.jar validate --suite health-check || exit 1
+
+ENTRYPOINT ["java", \
+  "-XX:+UseZGC", \
+  "-XX:MaxRAMPercentage=75.0", \
+  "-Dfile.encoding=UTF-8", \
+  "-Duser.timezone=Asia/Shanghai", \
+  "-jar", "app.jar"]
+
+CMD ["--help"]
+```
+
+### 17.2 Docker 运行示例
+
+```bash
+# 基本运行
+docker run \
+  -v $(pwd)/suites:/app/suites \
+  -v $(pwd)/env:/app/env \
+  -v $(pwd)/reports:/app/reports \
+  -e TEST_PASSWORD=xxx \
+  -e AUTH_CLIENT_ID=client-id \
+  -e AUTH_CLIENT_SECRET=secret \
+  -e AUTH_TOKEN_URL=https://auth.example.com/token \
+  company/api-test:1.0.0 \
+  run --suite payment --env uat
+
+# 双版本对比
+docker run \
+  -v $(pwd)/suites:/app/suites \
+  -v $(pwd)/env:/app/env \
+  -v $(pwd)/reports:/app/reports \
+  -e TEST_PASSWORD=xxx \
+  company/api-test:1.0.0 \
+  compare --suite payment --baseline v1 --candidate v2 --env uat
+```
+
+### 17.3 docker-compose.yml
+
+```yaml
+version: '3.8'
+services:
+  api-test:
+    image: company/api-test:1.0.0
+    volumes:
+      - ./suites:/app/suites
+      - ./env:/app/env
+      - ./reports:/app/reports
+    environment:
+      - TEST_PASSWORD=${TEST_PASSWORD}
+      - AUTH_CLIENT_ID=${AUTH_CLIENT_ID}
+      - AUTH_CLIENT_SECRET=${AUTH_CLIENT_SECRET}
+      - AUTH_TOKEN_URL=${AUTH_TOKEN_URL}
+    command: run --suite payment --env uat
+
+  allure:
+    image: frankescobar/allure-docker-service:latest
+    ports:
+      - "5050:5050"
+    volumes:
+      - ./reports/allure-results:/app/allure-results
+    depends_on:
+      - api-test
+```
+
+### 17.4 镜像构建与发布
+
+```bash
+# 构建
+docker build -t company/api-test:1.0.0 .
+docker build -t company/api-test:latest .
+
+# 推送
+docker push company/api-test:1.0.0
+docker push company/api-test:latest
+
+# 多平台构建
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  -t company/api-test:1.0.0 \
+  --push .
+```
+
+---
+
+## 18. Portal 设计（二期）
+
+### 18.1 核心功能
+
+| 功能模块 | 说明 |
+|----------|------|
+| Suite 管理 | 在线编辑、上传、版本管理 DSL 文件 |
+| 执行触发 | 选择 Suite + 环境 + Tag，在线执行 |
+| 实时日志 | SSE 实时推送执行进度和日志 |
+| 报告查看 | Allure 报告嵌入、HTML Diff 展示 |
+| 历史趋势 | Pass Rate 折线图、响应时间趋势 |
+| Diff 可视化 | 字段级高亮对比，支持折叠 / 展开 |
+| 权限管理 | 基于角色（管理员 / 开发 / 只读）的访问控制 |
+
+### 18.2 实时日志推送（SSE）
+
+```java
+@RestController
+@RequestMapping("/api/executions")
+public class ExecutionController {
+
+    @PostMapping
+    public ResponseEntity<ExecutionStartResponse> startExecution(
+            @RequestBody ExecutionRequest request) {
+        String executionId = executionService.submit(request);
+        return ResponseEntity.ok(new ExecutionStartResponse(executionId));
+    }
+
+    @GetMapping(value = "/{executionId}/stream",
+                produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter streamExecution(@PathVariable String executionId) {
+        SseEmitter emitter = new SseEmitter(300_000L);
+
+        eventBus.subscribe(executionId, event -> {
+            try {
+                emitter.send(SseEmitter.event()
+                    .name(event.getType())
+                    .id(event.getEventId())
+                    .data(JsonUtil.toJson(event)));
+                if ("suite_complete".equals(event.getType())) {
+                    emitter.complete();
+                }
+            } catch (IOException e) {
+                emitter.completeWithError(e);
+            }
+        });
+
+        emitter.onTimeout(() -> eventBus.unsubscribe(executionId));
+        emitter.onCompletion(() -> eventBus.unsubscribe(executionId));
+        return emitter;
+    }
+
+    @GetMapping("/{executionId}")
+    public ResponseEntity<ExecutionStatus> getStatus(@PathVariable String executionId) {
+        return ResponseEntity.ok(executionService.getStatus(executionId));
+    }
+
+    @GetMapping("/{executionId}/report")
+    public ResponseEntity<SuiteResult> getReport(@PathVariable String executionId) {
+        return ResponseEntity.ok(executionService.getResult(executionId));
+    }
+}
+```
+
+### 18.3 SSE 事件类型
+
+```java
+public enum ExecutionEventType {
+    SUITE_START,
+    CASE_START,
+    CASE_RESULT,
+    LOG,
+    SUITE_COMPLETE
+}
+
+@Data
+@Builder
+public class ExecutionEvent {
+    private String eventId;
+    private String executionId;
+    private ExecutionEventType type;
+    private Instant timestamp;
+    private Object payload;
+}
+```
+
+### 18.4 Portal REST API 端点
+
+```text
+POST   /api/executions                  触发执行
+GET    /api/executions/{id}             查询执行状态
+GET    /api/executions/{id}/stream      SSE 实时日志
+GET    /api/executions/{id}/report      获取完整报告
+DELETE /api/executions/{id}             取消执行
+
+GET    /api/suites                      Suite 列表
+GET    /api/suites/{name}               Suite 详情
+POST   /api/suites                      创建 / 上传 Suite
+PUT    /api/suites/{name}               更新 Suite
+DELETE /api/suites/{name}               删除 Suite
+GET    /api/suites/{name}/validate      校验 DSL 合法性
+
+GET    /api/history/{suite}             历史执行记录
+GET    /api/history/{suite}/trend       趋势数据
+
+GET    /api/envs                        环境列表
+GET    /api/envs/{name}                 环境详情（脱敏）
+
+GET    /actuator/health                 平台健康状态
+```
+
+### 18.5 前端技术栈
+
+| 技术 | 版本 | 用途 |
+|------|------|------|
+| React | 18.x | 前端框架 |
+| Ant Design | 5.x | UI 组件库 |
+| Ant Design Charts | 2.x | 趋势图表 |
+| Monaco Editor | latest | DSL 在线编辑 |
+| React Query | 5.x | 数据请求管理 |
+| Zustand | 4.x | 轻量状态管理 |
+| EventSource API | 原生 | SSE 实时日志接收 |
+
+---
+
+## 19. 并发执行设计
+
+```java
+public class ConcurrentSuiteRunner {
+
+    private final ExecutorService executor =
+        Executors.newVirtualThreadPerTaskExecutor();
+
+    public List<SuiteResult> runAll(List<TestSuite> suites, String env) {
+        List<CompletableFuture<SuiteResult>> futures = suites.stream()
+            .map(suite -> CompletableFuture.supplyAsync(
+                () -> runSuite(suite, env), executor))
+            .collect(Collectors.toList());
+
+        return futures.stream()
+            .map(f -> {
+                try {
+                    return f.get(10, TimeUnit.MINUTES);
+                } catch (TimeoutException e) {
+                    return SuiteResult.timeout();
+                } catch (InterruptedException | ExecutionException e) {
+                    return SuiteResult.error(e);
+                }
+            })
+            .collect(Collectors.toList());
+    }
+
+    private SuiteResult runSuite(TestSuite suite, String env) {
+        ExecutionContext context = ExecutionContextFactory.create(suite, env);
+        return SuiteExecutor.execute(suite, context);
+    }
+}
+```
+
+| 资源 | 隔离方式 |
+|------|----------|
+| 变量池 | 每个 Suite 独立 ExecutionContext |
+| Auth Token | 每个 Suite 独立 AuthProvider 实例 |
+| HTTP 连接池 | 每个 Suite 独立 HTTP Client 实例 |
+| 报告数据 | 按 executionId 隔离存储 |
+
+---
+
+## 20. 实施计划
+
+### 第一阶段（Week 1-3）— 核心引擎 MVP
+
+| 周次 | 任务 | 验收标准 |
+|------|------|----------|
+| Week 1 | DSL 解析器 + JSON Schema 校验 + 变量解析 | payment.yaml 正确解析，非法 DSL Fast Fail |
+| Week 2 | HTTP 执行引擎 + 基础断言 + Extract + 超时 / 重试 | login → queryBalance 链式执行，变量正确传递 |
+| Week 3 | Auth 插件 + Schema 断言 + JUnit 动态测试 + 依赖拓扑排序 | IDE 可运行，CI 原生识别，dependsOn 正确处理 |
+
+### 第二阶段（Week 4-6）— 对比与报告
+
+| 周次 | 任务 | 验收标准 |
+|------|------|----------|
+| Week 4 | Normalizer + Strict / Semantic CompareEngine | 动态字段正确过滤，2 种对比模式准确 |
+| Week 5 | Backward Compatible + Custom + 响应时间对比 | 全部 4 种对比模式验证通过 |
+| Week 6 | Allure + JSON + HTML Diff + 历史趋势报告 | 报告含请求/响应/Diff，JSON exit code 正确 |
+
+### 第三阶段（Week 7-8）— 工程化交付
+
+| 周次 | 任务 | 验收标准 |
+|------|------|----------|
+| Week 7 | CLI + 安全设计 + Docker 多阶段构建 | CLI 全命令可用，无明文敏感信息，Docker 运行成功 |
+| Week 8 | Jenkins + GitHub Actions + 并发执行 + 端到端联调 | 完整 CI 流水线跑通，exit code 正确驱动发布门禁 |
+
+### 第四阶段（长期迭代）— Portal & 生态
+
+| 里程碑 | 内容 | 预估周期 |
+|--------|------|----------|
+| M1 | Portal 基础：执行触发、SSE 实时日志、报告查看 | 4 周 |
+| M2 | Diff 可视化、历史趋势图表、RBAC 权限管理 | 3 周 |
+| M3 | OpenAPI Spec 自动生成 DSL | 3 周 |
+| M4 | 多租户、Suite 共享市场、外部自助联调 | 持续迭代 |
+
+---
+
+## 21. 关键风险与应对
+
+| 风险 | 等级 | 影响 | 应对策略 |
+|------|------|------|----------|
+| DSL 设计频繁变更导致不兼容 | 🔴 高 | 存量用例失效 | DSL JSON Schema 版本化，提供自动迁移工具 |
+| 动态字段过滤不完整导致误报 | 🔴 高 | 对比假阳性 | 标准 ignorePatterns 库，支持白名单模式 |
+| 敏感信息泄露到报告 / 日志 | 🔴 高 | 安全事故 | 所有输出强制经过 SensitiveDataMasker |
+| 循环依赖导致死锁 | 🔴 高 | Suite 执行挂起 | 拓扑排序检测环，Fast Fail 并报告路径 |
+| 并发执行 Context 变量竞争 | 🟡 中 | 用例结果不稳定 | ConcurrentHashMap，Suite 间完全隔离 |
+| 对比结果假阳性 | 🟡 中 | 噪音告警 | 充分测试 Normalizer，支持差异白名单 |
+| 外部 API 响应时间不稳定 | 🟡 中 | 超时失败 | retry + timeout，区分网络错误和业务错误 |
+| Portal SSE 连接数过多 | 🟡 中 | 服务资源耗尽 | 连接数限制 + 超时断开 + Virtual Thread |
+| CI 执行时间过长 | 🟢 低 | 发布周期延长 | Tag 分层，并行 Suite 执行 |
+
+---
+
+## 22. 最终价值
+
+### 22.1 用户价值矩阵
+
+| 角色 | 获得价值 |
+|------|----------|
+| API 开发者 | 本地快速验证，IDE 内直接运行，即时发现回归问题 |
+| 测试人员 | DSL 声明式编写，无需写 Java 代码，专注业务逻辑 |
+| 下游系统开发者 | 自助联调，标准化测试环境，减少沟通成本 |
+| 外部合作方 | Portal 在线测试，报告可视化，无需搭建环境 |
+| DevOps / SRE | CI 门禁自动化，发布质量有保障，exit code 驱动 |
+| 技术负责人 | 历史趋势可见，API 质量度量，技术债识别 |
+
+### 22.2 设计原则
+
+| 原则 | 体现 |
+|------|------|
+| 安全第一 | 无明文敏感信息，全链路脱敏 |
+| 声明式优于命令式 | YAML DSL，无需写 Java |
+| 快速反馈 | IDE 可运行，Tag 分层，CI Fast Fail |
+| 可扩展 | SPI 插件机制（Auth / Compare / Reporter） |
+| 可观测 | Allure 步骤、附件、时间线、趋势 |
+| 工程化 | Docker 化，CI 模板，exit code 规范 |
+
+---
+
+*文档版本：v2.0.0 | 基于技术评审意见全面优化*
+```
